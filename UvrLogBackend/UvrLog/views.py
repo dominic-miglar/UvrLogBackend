@@ -70,9 +70,11 @@ class ControllerViewSet(viewsets.ModelViewSet):
                         # Update latest_value field in I/O Identifier to the latest received I/O Value object
                         # if that value was created newly and did not exist in the past.
                         if dataset is datasetlist_sorted[-1] and created == True:
-                           io_identifier_dict[analogvalueset['name']].latest_value = analogvalue
-                           #logger.info('Updated latest_value field on I/O Identifier %s to %s' % (
-                           #    io_identifier_dict[analogvalueset['name']].__str__(), analogvalue.__str__()))
+                            io_identifier = io_identifier_dict[analogvalueset['name']]
+                            io_identifier.latest_value = analogvalue
+                            io_identifier.save(update_fields=['latest_value',])
+                            #logger.info('Updated latest_value field on I/O Identifier %s to %s' % (
+                            #    io_identifier_dict[analogvalueset['name']].__str__(), analogvalue.__str__()))
                         #logger.info('Created new AnalogValue object: %s' % analogvalue.__str__())
                     for digitalvalueset in dataset['digital']:
                         digitalvalue, created = models.DigitalValue.objects.get_or_create(
@@ -85,9 +87,11 @@ class ControllerViewSet(viewsets.ModelViewSet):
                         # Update latest_value field in I/O Identifier to the latest received I/O Value object
                         # if that value was created newly and did not exist in the past.
                         if dataset is datasetlist_sorted[-1] and created == True:
-                           io_identifier_dict[digitalvalueset['name']].latest_value = digitalvalue
-                           #logger.info('Updated latest_value field on I/O Identifier %s to %s' % (
-                           #    io_identifier_dict[digitalvalueset['name']].__str__(), digitalvalue.__str__()))
+                            io_identifier = io_identifier_dict[digitalvalueset['name']]
+                            io_identifier.latest_value = digitalvalue
+                            io_identifier.save(update_fields=['latest_value',])
+                            #logger.info('Updated latest_value field on I/O Identifier %s to %s' % (
+                            #    io_identifier_dict[digitalvalueset['name']].__str__(), digitalvalue.__str__()))
                         # logger.info('Created new DigitalValue object: %s' % digitalvalue.__str__())
                     for heatmetervalueset in dataset['energy']:
                         heatmetervalue, created = models.HeatMeterValue.objects.get_or_create(
@@ -99,9 +103,11 @@ class ControllerViewSet(viewsets.ModelViewSet):
                         # Update latest_value field in I/O Identifier to the latest received I/O Value object
                         # if that value was created newly and did not exist in the past.
                         if dataset is datasetlist_sorted[-1] and created == True:
-                           io_identifier_dict[heatmetervalueset['name']].latest_value = heatmetervalue
-                           #logger.info('Updated latest_value field on I/O Identifier %s to %s' % (
-                           #    io_identifier_dict[heatmetervalueset['name']].__str__(), heatmetervalue.__str__()))
+                            io_identifier = io_identifier_dict[heatmetervalueset['name']]
+                            io_identifier.latest_value = heatmetervalue
+                            io_identifier.save(update_fields=['latest_value',])
+                            #logger.info('Updated latest_value field on I/O Identifier %s to %s' % (
+                            #    io_identifier_dict[heatmetervalueset['name']].__str__(), heatmetervalue.__str__()))
                         # logger.info('Created new HeatMeterValue object: %s' % heatmetervalue.__str__())
         except IntegrityError:
             error_msg = u'Error while processing dataset! Rolled back changes in database!'
