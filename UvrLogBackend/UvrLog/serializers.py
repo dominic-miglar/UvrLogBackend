@@ -21,10 +21,11 @@ class ControllerSerializer(serializers.ModelSerializer):
         #read_only_fields = ['id',]
 
 class IoIdentifierSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = IoIdentifier
         fields = ['id', 'controller', 'latest_value', 'name', 'type', 'description',]
-        #read_only_fields = ['id',]
+        read_only_fields = ['latest_value',]
 
 class IoValueSerializer(serializers.ModelSerializer):
     class Meta:
