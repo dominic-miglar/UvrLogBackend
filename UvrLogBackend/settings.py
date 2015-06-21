@@ -176,7 +176,21 @@ REST_FRAMEWORK = {
     ),
 }
 
+####################
+# CORS settings
+####################
+CORS_ORIGIN_ALLOW_ALL = True #allow access from all sources
+CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_HEADERS = (
+        'x-requested-with',
+        'content-type',
+        'accept',
+        'origin',
+        'authorization',
+        'x-csrftoken',
+        'content-disposition',
+    )
 
 #####################################################
 # loads the production values from the settings file
