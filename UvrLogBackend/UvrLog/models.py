@@ -105,11 +105,6 @@ class UploadedSchema(models.Model):
     uploaded_file = models.FileField(upload_to=get_schema_upload_path)
     timestamp = models.DateTimeField('Uploaded', auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if not self.uploaded_file:
-            print('OH SHIT')
-        super(UploadedSchema, self).save(*args, **kwargs)
-
     def __str__(self):
         return '%s - %s - %s' % (
             self.related_controller.name, os.path.split(self.uploaded_file.name)[1], self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
