@@ -1,17 +1,21 @@
 #!/usr/bin/env python2
 #-*- coding:utf-8 -*-
 
-'''
+"""
 This module contains all ViewSets which control the request / response cycle.
-'''
+"""
 
 import logging
+import os
+import magic
 from datetime import datetime
 from django.db import IntegrityError, transaction
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import FileUploadParser
 import models, serializers, filtersets
 
 __author__ = "Dominic Miglar"
@@ -25,6 +29,11 @@ logger = logging.getLogger(__name__)
 def datestring_to_datetime(datestring):
     return datetime.strptime(datestring, '%Y-%m-%d %H:%M:%S')
 
+def get_mime_type(file):
+    mime = magic.Magic(mime=True)
+    mime_type = mime.from_buffer(file.read())
+    return mime_type
+
 
 class ControllerViewSet(viewsets.ModelViewSet):
     queryset = models.Controller.objects.all()
@@ -35,7 +44,7 @@ class ControllerViewSet(viewsets.ModelViewSet):
         the database.
     '''
     @detail_route(methods=['post',], renderer_classes = [JSONRenderer,])
-    def import_data(selfself, request, pk=None):
+    def import_data(self, request, pk=None):
         #logger.info('DEBUG:')
         #logger.info(request.data)
 
@@ -151,4 +160,62 @@ class HeatMeterValueViewSet(viewsets.ModelViewSet):
     queryset = models.HeatMeterValue.objects.all()
     serializer_class = serializers.HeatMeterValueSerializer
     filter_class = filtersets.HeatMeterValueFilter
+
+
+class UploadedSchemaViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.UploadedSchema.objects.all()
+    serializer_class = serializers.UploadedSchemaSerializer
+    filter_class = filtersets.UploadedSchemaFilter
+
+    @detail_route(methods=['post',], parser_classes=[FileUploadParser,],)
+    def upload(self, request, pk=None):
+        controller_id = request.data['controller'] or None
+
+        if 'file' in request.data:
+            uploaded_file = request.data['file']
+        else:
+            uploaded_file = None
+
+        if uploaded_file is None:
+            response = {
+                'message': 'You have to provide a attribute named file which contains the schema file to upload.'
+            }
+            return Response(response, status.HTTP_400_BAD_REQUEST)
+
+        if controller_id is None:
+            response = {
+                'message': 'You have to provide a attribute named controller which specifies the controller id.'
+            }
+            return Response(response, status.HTTP_400_BAD_REQUEST)
+
+        try:
+            controller = models.Controller.objects.get(pk=controller_id)
+        except ObjectDoesNotExist as e:
+            response = {
+                'message': 'The controller with the ID %s was not found!' % controller_id
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        uploaded_file_name, uploaded_file_extension = os.path.splitext(uploaded_file.name)
+        if uploaded_file_extension.lower() != '.svg':
+            response = {
+                'message': 'The file you are trying to upload must have the .svg extension!'
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        mime_type = get_mime_type(uploaded_file)
+        if(mime_type != 'image/svg+xml'):
+            response = {
+                'message': 'The file you are trying to upload is not a SVG file!'
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        uploaded_schema = models.UploadedSchema(uploaded_file=uploaded_file, related_controller=controller)
+        uploaded_schema.save()
+        uploaded_schema_serializer = serializers.UploadedSchemaSerializer(uploaded_schema, context={'request': request})
+
+        return Response(
+            uploaded_schema_serializer.data,
+            status=status.HTTP_201_CREATED
+        )
 

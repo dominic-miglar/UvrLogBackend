@@ -19,6 +19,7 @@ router.register(r'iovalues', views.IoValueViewSet)
 router.register(r'analogvalues', views.AnalogValueViewSet)
 router.register(r'digitalvalues', views.DigitalValueViewSet)
 router.register(r'heatmetervalues', views.HeatMeterValueViewSet)
+router.register(r'uploadedschemas', views.UploadedSchemaViewSet)
 
 urlpatterns = patterns('',
     url(r'', include(router.urls)),
