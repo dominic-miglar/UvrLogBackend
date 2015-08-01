@@ -23,6 +23,8 @@ __maintainer__ = "Dominic Miglar"
 __email__ = "dominic.miglar@w1r3.net"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
